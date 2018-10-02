@@ -20,10 +20,10 @@ module.exports = {
 							} else if ( node.querySelectorAll ) {
 								this.on( selector, eventName, callback, node );
 							}
-						} );
+						}.bind( this ) );
 					}
-				} );
-			} );
+				}.bind( this ) );
+			}.bind( this ) );
 
 			mutationObserver.observe( document.body, {
 				childList: true,

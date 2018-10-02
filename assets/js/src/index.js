@@ -10,19 +10,20 @@
 			let pathName = anchor.pathname;
 
 			if ( window.location.pathname !== pathName || ! anchor.hash ) {
-				let target = anchor.getAttribute( 'target' ).toLowerCase();
+				let target = anchor.getAttribute( 'target' ) || '';
 
-				if ( '_blank' !== target ) {
+				if ( '_blank' !== target.toLowerCase() ) {
 					filter = false;
 
 					let blacklist = [
 						/^\/wp-login\.php$/,
-						/^\/wp-admin\//,
-						/\/feed\/$/,
+						/^\/wp-admin\/?/,
+						/\/feed\/?$/,
 					];
 
 					for ( let pattern of blacklist ) {
-						if ( pattern.match( pathName ) ) {
+						if ( pattern.test( pathName ) ) {
+							console.log(1);
 							filter = true;
 
 							break;
@@ -41,7 +42,7 @@
 
 		window.history.replaceState(
 			{
-				key: key(),
+				key: document.location.href,
 			},
 			document.title,
 			document.location.href
@@ -49,9 +50,23 @@
 
 		//setQueue( ... );
 
-		events.live( 'click', 'a', function( e ) {
-			if ( ! filterAnchor( this ) ) {
+		events.live( 'a', 'click', function( e ) {
+			var anchor = this;
+
+			if ( ! filterAnchor( anchor ) ) {
 				e.preventDefault();
+
+				if ( ! document.body.classList.contains( 'ajax-navigation-fetching' ) ) {
+					document.body.classList.add( 'ajax-navigation-fetching' );
+
+					var url = anchor.href;
+
+					fetch( url ).then( function( response ) {
+						setContent( key );
+					} ).catch( function() {
+						window.location.href = url;
+					} );
+				}
 			}
 		} );
 
