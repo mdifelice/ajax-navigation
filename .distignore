@@ -1,0 +1,10 @@
+# A set of files you probably don't want in your WordPress.org distribution
+.distignore
+.git
+.gitignore
+.DS_Store
+Thumbs.db
+Gruntfile.js
+package.json
+node_modules
+src

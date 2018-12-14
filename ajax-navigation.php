@@ -1,6 +1,11 @@
 <?php
 /**
  * Plugin Name: AJAX Navigation
+ * Description: @todo
+ * Author: Martín Di Felice
+ * Text Domain: ajax-navigation
+ * Doman Path: /languages
+ * Version: 1.0
  */
 
 add_action( 'init', function() {
@@ -87,7 +92,7 @@ add_action( 'wp_enqueue_scripts', function() {
 
 		wp_enqueue_script(
 			'ajax-navigation',
-			plugins_url( 'assets/js/ajax-navigation.min.js', __FILE__ ),
+			plugins_url( 'public/js/ajax-navigation.min.js', __FILE__ ),
 			array(),
 			'1.0',
 			true
@@ -95,7 +100,7 @@ add_action( 'wp_enqueue_scripts', function() {
 
 		wp_localize_script(
 			'ajax-navigation',
-			'ajax_navigation',
+			'ajaxNavigation',
 			array(
 				'cache_timeout' => $cache_timeout,
 			)

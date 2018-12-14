@@ -1,3 +1,38 @@
+module.exports = {
+	on: function( selector, eventName, callback, container ) {
+		var container = container || document;
+		var elements = container.querySelectorAll( selector );
+
+		elements.forEach( function( element ) {
+			element.addEventListener( eventName, callback );
+		} );
+	},
+	live: function( selector, eventName, callback ) {
+		this.on( selector, eventName, callback );
+
+		if ( window.MutationObserver ) {
+			var mutationObserver = new MutationObserver( function( mutations ) {
+				mutations.forEach( function( mutation ) {
+					if ( 'childList' === mutation.type ) {
+						mutation.addedNodes.forEach( function( node ) {
+							if ( node.matches && node.matches( selector ) ) {
+								node.addEventListener( eventName, callback );
+							} else if ( node.querySelectorAll ) {
+								this.on( selector, eventName, callback, node );
+							}
+						}.bind( this ) );
+					}
+				}.bind( this ) );
+			}.bind( this ) );
+
+			mutationObserver.observe( document.body, {
+				childList: true,
+				subtree: true
+			} );
+		}
+	}
+};
+
 ( function() {
 	const events = require( './events.js' );
 
@@ -7,21 +42,23 @@
 		var filter = true;
 
 		if ( window.location.hostname === anchor.hostname ) {
-			let pathName = anchor.pathname;
+			var pathName = anchor.pathname;
 
 			if ( window.location.pathname !== pathName || ! anchor.hash ) {
-				let target = anchor.getAttribute( 'target' ) || '';
+				var target = anchor.getAttribute( 'target' ) || '';
 
 				if ( '_blank' !== target.toLowerCase() ) {
 					filter = false;
 
-					let blacklist = [
+					var blacklist = [
 						/^\/wp-login\.php$/,
 						/^\/wp-admin\/?/,
 						/\/feed\/?$/,
 					];
 
-					for ( let pattern of blacklist ) {
+					for ( var i in blacklist ) {
+						var pattern = blacklist[ i ];
+
 						if ( pattern.test( pathName ) ) {
 							console.log(1);
 							filter = true;

@@ -11,7 +11,7 @@ module.exports = {
 		this.on( selector, eventName, callback );
 
 		if ( window.MutationObserver ) {
-			let mutationObserver = new MutationObserver( function( mutations ) {
+			var mutationObserver = new MutationObserver( function( mutations ) {
 				mutations.forEach( function( mutation ) {
 					if ( 'childList' === mutation.type ) {
 						mutation.addedNodes.forEach( function( node ) {
