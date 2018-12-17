@@ -1,28 +1,28 @@
 ( function() {
 	const events = require( './events.js' );
 
-	var historyQueue = {};
+	let historyQueue = {};
 
-	var filterAnchor = function( anchor ) {
-		var filter = true;
+	let filterAnchor = ( anchor ) => {
+		let filter = true;
 
 		if ( window.location.hostname === anchor.hostname ) {
-			var pathName = anchor.pathname;
+			let pathName = anchor.pathname;
 
 			if ( window.location.pathname !== pathName || ! anchor.hash ) {
-				var target = anchor.getAttribute( 'target' ) || '';
+				let target = anchor.getAttribute( 'target' ) || '';
 
 				if ( '_blank' !== target.toLowerCase() ) {
 					filter = false;
 
-					var blacklist = [
+					let blacklist = [
 						/^\/wp-login\.php$/,
 						/^\/wp-admin\/?/,
 						/\/feed\/?$/,
 					];
 
-					for ( var i in blacklist ) {
-						var pattern = blacklist[ i ];
+					for ( let i in blacklist ) {
+						let pattern = blacklist[ i ];
 
 						if ( pattern.test( pathName ) ) {
 							console.log(1);
@@ -38,9 +38,9 @@
 		return filter;
 	};
 
-	var init = function() {
-		var cacheTimeout = parseInt( settings.cache_timeout ) || 0;
-		var container    = document.getElementById( settings.container_id ) || document.body;
+	let init = () => {
+		let cacheTimeout = parseInt( settings.cache_timeout ) || 0;
+		let container    = document.getElementById( settings.container_id ) || document.body;
 
 		window.history.replaceState(
 			{
@@ -52,8 +52,8 @@
 
 		//setQueue( ... );
 
-		events.live( 'a', 'click', function( e ) {
-			var anchor = this;
+		events.live( 'a', 'click', ( e ) => {
+			let anchor = this;
 
 			if ( ! filterAnchor( anchor ) ) {
 				e.preventDefault();
@@ -61,19 +61,19 @@
 				if ( ! document.body.classList.contains( 'ajax-navigation-fetching' ) ) {
 					document.body.classList.add( 'ajax-navigation-fetching' );
 
-					var url = anchor.href;
+					let url = anchor.href;
 
-					fetch( url ).then( function( response ) {
+					fetch( url ).then( ( response ) => {
 						setContent( key );
-					} ).catch( function() {
+					} ).catch( () => {
 						window.location.href = url;
 					} );
 				}
 			}
 		} );
 
-		window.addEventListener( 'popstate', function( e ) {
-			var key = e.state && e.state.key ? e.state.key : null;
+		window.addEventListener( 'popstate', ( e ) => {
+			let key = e.state && e.state.key ? e.state.key : null;
 
 			if ( key ) {
 				setContent( key, false );
@@ -82,8 +82,8 @@
 	};
 
 	if ( 'undefined' !== typeof window.ajax_navigation ) {
-		var settings   = window.ajax_navigation;
-		var readyState = document.readyState;
+		let settings   = window.ajax_navigation;
+		let readyState = document.readyState;
 
 		if ( 'complete' === readyState || 'interactive' === readyState ) {
 			init();

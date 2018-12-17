@@ -7,6 +7,13 @@ module.exports = function( grunt ) {
 				dest: 'public/js/<%= pkg.name %>.js'
 			}
 		},
+		babel: {
+			dist: {
+				files: {
+					'public/js/<%= pkg.name %>.js': 'public/js/<%= pkg.name %>.js'
+				}
+			}
+		},
 		uglify: {
 			dist: {
 				files: {
@@ -16,8 +23,9 @@ module.exports = function( grunt ) {
 		}
 	} );
 
+	grunt.loadNpmTasks( 'grunt-babel' );
 	grunt.loadNpmTasks( 'grunt-contrib-concat' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
 
-	grunt.registerTask( 'default', [ 'concat', 'uglify' ] );
+	grunt.registerTask( 'default', [ 'concat', 'babel', 'uglify' ] );
 };
