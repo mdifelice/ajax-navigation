@@ -9,16 +9,14 @@ module.exports = function( grunt ) {
 		},
 		babel: {
 			dist: {
-				files: {
-					'public/js/<%= pkg.name %>.js': 'public/js/<%= pkg.name %>.js'
-				}
+				src: 'public/js/<%= pkg.name %>.js',
+				dest: 'public/js/<%= pkg.name %>.js'
 			}
 		},
 		uglify: {
 			dist: {
-				files: {
-					'public/js/<%= pkg.name %>.min.js' : [ '<%= concat.dist.dest %>' ]
-				}
+				src: 'public/js/<%= pkg.name %>.js',
+				dest: 'public/js/<%= pkg.name %>.min.js'
 			}
 		}
 	} );

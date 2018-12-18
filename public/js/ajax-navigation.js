@@ -1,44 +1,51 @@
 "use strict";
 
-var _this = void 0;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.on = on;
+exports.live = live;
 
-module.exports = {
-  on: function on(selector, eventName, callback, container) {
-    var elements = container.querySelectorAll(selector);
-    container = container || document;
-    elements.forEach(function (element) {
-      element.addEventListener(eventName, callback);
+var events = _interopRequireWildcard(require("./events"));
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function on(selector, eventName, callback, container) {
+  var elements = container.querySelectorAll(selector);
+  container = container || document;
+  elements.forEach(function (element) {
+    element.addEventListener(eventName, callback);
+  });
+}
+
+function live(selector, eventName, callback) {
+  var _this = this;
+
+  on(selector, eventName, callback);
+
+  if (window.MutationObserver) {
+    var mutationObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        if ('childList' === mutation.type) {
+          mutation.addedNodes.forEach(function (node) {
+            if (node.matches && node.matches(selector)) {
+              node.addEventListener(eventName, callback);
+            } else if (node.querySelectorAll) {
+              _this.on(selector, eventName, callback, node);
+            }
+          });
+        }
+      });
     });
-  },
-  live: function live(selector, eventName, callback) {
-    _this.on(selector, eventName, callback);
-
-    if (window.MutationObserver) {
-      var mutationObserver = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-          if ('childList' === mutation.type) {
-            mutation.addedNodes.forEach(function (node) {
-              if (node.matches && node.matches(selector)) {
-                node.addEventListener(eventName, callback);
-              } else if (node.querySelectorAll) {
-                _this.on(selector, eventName, callback, node);
-              }
-            });
-          }
-        });
-      });
-      mutationObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-    }
+    mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
   }
-};
+}
 
 (function () {
   var _this2 = this;
-
-  var events = require('./events.js');
 
   var historyQueue = {};
 

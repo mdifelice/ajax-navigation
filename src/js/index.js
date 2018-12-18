@@ -1,6 +1,6 @@
-( function() {
-	const events = require( './events.js' );
+import * as events from './events';
 
+( function() {
 	let historyQueue = {};
 
 	let filterAnchor = ( anchor ) => {
