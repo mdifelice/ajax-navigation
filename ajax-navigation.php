@@ -37,8 +37,15 @@ add_action( 'admin_menu', function() {
 
 add_action( 'admin_init', function() {
 	add_settings_section(
-		'ajax-navigation',
-		__( 'Settings', 'ajax-navigation' ),
+		'ajax-navigation-default',
+		__( 'Default Settings', 'ajax-navigation' ),
+		null,
+		'ajax-navigation'
+	);
+
+	add_settings_section(
+		'ajax-navigation-advanced',
+		__( 'Advanced Settings', 'ajax-navigation' ),
 		null,
 		'ajax-navigation'
 	);
@@ -53,7 +60,7 @@ add_action( 'admin_init', function() {
 			);
 		},
 		'ajax-navigation',
-		'ajax-navigation'
+		'ajax-navigation-default'
 	);
 
 	add_settings_field(
@@ -66,7 +73,20 @@ add_action( 'admin_init', function() {
 			);
 		},
 		'ajax-navigation',
-		'ajax-navigation'
+		'ajax-navigation-advanced'
+	);
+
+	add_settings_field(
+		'ajax_navigation_container_id',
+		__( 'Container ID', 'ajax-navigation' ),
+		function() {
+			printf(
+				'<input type="text" class="widefat" name="ajax_navigation_container_id" value="%s" />',
+				esc_attr( get_option( 'ajax_navigation_container_id' ) )
+			);
+		},
+		'ajax-navigation',
+		'ajax-navigation-advanced'
 	);
 
 	register_setting(
@@ -81,6 +101,11 @@ add_action( 'admin_init', function() {
 		'ajax-navigation',
 		'ajax_navigation_cache_timeout',
 		'absint'
+	);
+
+	register_setting(
+		'ajax-navigation',
+		'ajax_navigation_container_id'
 	);
 } );
 
@@ -102,7 +127,13 @@ add_action( 'wp_enqueue_scripts', function() {
 			'ajax-navigation',
 			'ajaxNavigation',
 			array(
-				'cache_timeout' => $cache_timeout,
+				'containerId'  => null,
+				'cacheTimeout' => $cache_timeout,
+				'urlBlacklist' => array(
+					'/^\/wp-login.php$/',
+					'/^\/wp-admin\/?/',
+					'/^\/feed\/?$/',
+				),
 			)
 		);
 	}

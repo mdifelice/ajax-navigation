@@ -1,88 +1,118 @@
-import * as events from './events';
+import './container';
+import './events';
+import './history';
+import './page';
 
 ( function() {
-	let historyQueue = {};
+	function filterAnchor( anchor ) {
+		let target = anchor.getAttribute( 'target' ) || '',
+			filter = true;
 
-	let filterAnchor = ( anchor ) => {
+		if ( '_blank' !== target.toLowerCase() ) {
+			filter = filterUrl( anchor );
+		}
+
+		return filter;
+	}
+
+	function filterUrl( url ) {
 		let filter = true;
 
-		if ( window.location.hostname === anchor.hostname ) {
-			let pathName = anchor.pathname;
+		if ( window.location.hostname === url.hostname ) {
+			let pathName = url.pathname;
 
-			if ( window.location.pathname !== pathName || ! anchor.hash ) {
-				let target = anchor.getAttribute( 'target' ) || '';
+			if ( window.location.pathname !== pathName || ! url.hash ) {
+				let blacklist = settings.urlBlacklist;
 
-				if ( '_blank' !== target.toLowerCase() ) {
-					filter = false;
+				for ( let i in blacklist ) {
+					let pattern = blacklist[ i ];
 
-					let blacklist = [
-						/^\/wp-login\.php$/,
-						/^\/wp-admin\/?/,
-						/\/feed\/?$/,
-					];
+					if ( pattern.test( pathName ) ) {
+						filter = true;
 
-					for ( let i in blacklist ) {
-						let pattern = blacklist[ i ];
-
-						if ( pattern.test( pathName ) ) {
-							console.log(1);
-							filter = true;
-
-							break;
-						}
+						break;
 					}
 				}
 			}
 		}
 
 		return filter;
-	};
+	}
 
-	let init = () => {
-		let cacheTimeout = parseInt( settings.cache_timeout ) || 0;
-		let container    = document.getElementById( settings.container_id ) || document.body;
+	function init() {
+		var container   = new Container( containerId ),
+			history     = new History( settings.cacheTimeout );
+
+		let currentPage = container.currentPage;
+
+		history.appendPage( currentPage );
 
 		window.history.replaceState(
 			{
-				key: document.location.href,
+				key: currentPage.key
 			},
-			document.title,
+			currentPage.documentTitle,
 			document.location.href
 		);
 
-		//setQueue( ... );
-
-		events.live( 'a', 'click', ( e ) => {
+		Events.live( 'a', 'click', ( e ) => {
 			let anchor = this;
 
 			if ( ! filterAnchor( anchor ) ) {
 				e.preventDefault();
 
-				if ( ! document.body.classList.contains( 'ajax-navigation-fetching' ) ) {
-					document.body.classList.add( 'ajax-navigation-fetching' );
+				var bodyClassList = document.body.classList;
 
-					let url = anchor.href;
+				// Avoid double fetching by checking this body class.
+				if ( ! bodyClassList.contains( 'ajax-navigation-fetching' ) ) {
+					bodyClassList.add( 'ajax-navigation-fetching' );
 
-					fetch( url ).then( ( response ) => {
-						setContent( key );
-					} ).catch( () => {
-						window.location.href = url;
-					} );
+					var href = anchor.href;
+
+					let key  = Page.generateKey( href ),
+						page = history.getPage( key );
+
+					if ( page ) {
+						container.render( page );
+					} else {
+						fetch( href ).then( ( html ) => {
+							let page = Container.parsePage( href, html );
+
+							bodyClassList.remove( 'ajax-navigation-fetching' );
+
+							history.setPage( page );
+
+							container.render( page );
+
+							window.history.pushState(
+								{
+									key: page.key
+								},
+								page.documentTitle,
+								href
+							);
+						} ).catch( () => {
+							// In case of an error, it fallbacks in regular navigation.
+							window.location.href = href;
+						} );
+					}
 				}
 			}
 		} );
 
+		// When the user goes back or forward, we retrieve the content from the queue
 		window.addEventListener( 'popstate', ( e ) => {
-			let key = e.state && e.state.key ? e.state.key : null;
+			let key = e.state ? e.state.key : null;
 
 			if ( key ) {
-				setContent( key, false );
+				container.render( history.getPage( key ) );
 			}
 		} );
-	};
+	}
 
-	if ( 'undefined' !== typeof window.ajax_navigation ) {
-		let settings   = window.ajax_navigation;
+	if ( undefined !== window.ajaxNavigation ) {
+		var settings = window.ajaxNavigation;
+
 		let readyState = document.readyState;
 
 		if ( 'complete' === readyState || 'interactive' === readyState ) {
