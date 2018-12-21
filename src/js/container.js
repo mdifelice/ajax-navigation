@@ -1,5 +1,3 @@
-import './page';
-
 export class Container {
 	constructor( id ) {
 		this.id          = id;

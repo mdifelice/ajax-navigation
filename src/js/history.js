@@ -1,5 +1,3 @@
-import 'page.js';
-
 export class History {
 	constructor( cacheTimeout ) {
 		this.cacheTimeout = cacheTimeout;

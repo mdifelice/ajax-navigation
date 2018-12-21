@@ -1,1 +1,381 @@
-"use strict";function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _defineProperties(e,t){for(var n=0;n<t.length;n++){var a=t[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(e,a.key,a)}}function _createClass(e,t,n){return t&&_defineProperties(e.prototype,t),n&&_defineProperties(e,n),e}Object.defineProperty(exports,"__esModule",{value:!0}),exports.Page=exports.History=exports.Events=exports.Container=void 0,require("./page"),require("page.js"),require("./container"),require("./events"),require("./history");var Container=function(){function e(t){_classCallCheck(this,e),this.id=t,this.rootElement=document.getElementById(t)||document.body,this.currentPage=this.parsePage(href,document.title,document.body.className)}return _createClass(e,[{key:"render",value:function(e){for(currentPage.update(),document.title=e.documentTitle,document.body.className=e.bodyClass;e.rootElement.firstChild;)this.rootElement.appendChild(e.rootElement.firstChild);window.scrollTo(e.scrollX,e.scrollY),this.currentPage=e}},{key:"parsePage",value:function(e,t){var n=(new DOMParser).parseFromString(t,"text/html"),a=n.title,r=n.body.className,i=null;return i=id?n.getElementByID(container.id):n.body,new Page(e,a,r,i)}}]),e}();exports.Container=Container;var Events=function(){function e(){_classCallCheck(this,e)}return _createClass(e,null,[{key:"on",value:function(e,t,n,a){var r=a.querySelectorAll(e);a=a||document,r.forEach(function(e){e.addEventListener(t,n)})}},{key:"live",value:function(e,t,n){var a=this;(this.on(e,t,n),window.MutationObserver)&&new MutationObserver(function(r){r.forEach(function(r){"childList"===r.type&&r.addedNodes.forEach(function(r){r.matches&&r.matches(e)?r.addEventListener(t,n):r.querySelectorAll&&a.on(e,t,n,r)})})}).observe(document.body,{childList:!0,subtree:!0})}}]),e}();exports.Events=Events;var History=function(){function e(t){_classCallCheck(this,e),this.cacheTimeout=t,this.pages={}}return _createClass(e,[{key:"getPage",value:function(e){var t=this.pages[e],n=null;return void 0!==t&&(!this.cacheTimeout||(new Date).now-t.timestamp<=this.cacheTimeout)&&(n=t),n}},{key:"setPage",value:function(e){this.getPage(e.key)&&(e.timestamp=(new Date).now),this.pages[e.key]=e}}]),e}();exports.History=History,function(){function e(e){var t=!0;return"_blank"!==(e.getAttribute("target")||"").toLowerCase()&&(t=function(e){var t=!0;if(window.location.hostname===e.hostname){var a=e.pathname;if(window.location.pathname!==a||!e.hash){var r=n.urlBlacklist;for(var i in r){var o=r[i];if(o.test(a)){t=!0;break}}}}return t}(e)),t}function t(){var t=this,a=new Container(containerId),r=new History(n.cacheTimeout),i=a.currentPage;r.appendPage(i),window.history.replaceState({key:i.key},i.documentTitle,document.location.href),Events.live("a","click",function(n){var i=t;if(!e(i)){n.preventDefault();var o=document.body.classList;if(!o.contains("ajax-navigation-fetching")){o.add("ajax-navigation-fetching");var s=i.href,c=Page.generateKey(s),l=r.getPage(c);l?a.render(l):fetch(s).then(function(e){var t=Container.parsePage(s,e);o.remove("ajax-navigation-fetching"),r.setPage(t),a.render(t),window.history.pushState({key:t.key},t.documentTitle,s)}).catch(function(){window.location.href=s})}}}),window.addEventListener("popstate",function(e){var t=e.state?e.state.key:null;t&&a.render(r.getPage(t))})}if(void 0!==window.ajaxNavigation){var n=window.ajaxNavigation,a=document.readyState;"complete"===a||"interactive"===a?t():document.addEventListener("DOMContentLoaded",t)}}();var Page=function(){function e(t,n,a,r){_classCallCheck(this,e),this.key=this.generateKey(t),this.documentTitle=n,this.bodyClass=a,this.rootElement=r,this.timestamp=(new Date).now,this.updateScroll()}return _createClass(e,[{key:"update",value:function(){this.documentTitle=document.title,this.updateScroll()}},{key:"updateScroll",value:function(){this.scrollX=window.scrollX,this.scrollY=window.scrollY}}],[{key:"generateKey",value:function(e){var t=e.replace(document.location.origin,""),n=!1;return t.length?"/"!==t.charAt(t.length-1)&&(n=!0):n=!0,n&&(t+="/"),t}},{key:"parseHTML",value:function(t,n){var a=arguments.length>2&&void 0!==arguments[2]?arguments[2]:null,r=(new DOMParser).parseFromString(n,"text/html");return new e(t,r.title,r.body.className,a?r.getElementByID(a):r.body)}}]),e}();exports.Page=Page;
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Container = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Container =
+/*#__PURE__*/
+function () {
+  function Container(id) {
+    _classCallCheck(this, Container);
+
+    this.id = id;
+    this.rootElement = document.getElementById(id) || document.body;
+    this.currentPage = this.parsePage(href, document.title, document.body.className);
+  }
+
+  _createClass(Container, [{
+    key: "render",
+    value: function render(page) {
+      currentPage.update();
+      document.title = page.documentTitle;
+      document.body.className = page.bodyClass;
+
+      while (page.rootElement.firstChild) {
+        this.rootElement.appendChild(page.rootElement.firstChild);
+      }
+
+      window.scrollTo(page.scrollX, page.scrollY);
+      this.currentPage = page;
+    }
+  }, {
+    key: "parsePage",
+    value: function parsePage(href, html) {
+      var parser = new DOMParser(),
+          document = parser.parseFromString(html, 'text/html'),
+          documentTitle = document.title,
+          bodyClass = document.body.className,
+          rootElement = null,
+          page = null;
+
+      if (id) {
+        rootElement = document.getElementByID(container.id);
+      } else {
+        rootElement = document.body;
+      }
+
+      return new Page(href, documentTitle, bodyClass, rootElement);
+    }
+  }]);
+
+  return Container;
+}();
+
+exports.Container = Container;
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Events = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Events =
+/*#__PURE__*/
+function () {
+  function Events() {
+    _classCallCheck(this, Events);
+  }
+
+  _createClass(Events, null, [{
+    key: "on",
+    value: function on(selector, eventName, callback, container) {
+      var elements = container.querySelectorAll(selector);
+      container = container || document;
+      elements.forEach(function (element) {
+        element.addEventListener(eventName, callback);
+      });
+    }
+  }, {
+    key: "live",
+    value: function live(selector, eventName, callback) {
+      var _this = this;
+
+      this.on(selector, eventName, callback);
+
+      if (window.MutationObserver) {
+        var mutationObserver = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            if ('childList' === mutation.type) {
+              mutation.addedNodes.forEach(function (node) {
+                if (node.matches && node.matches(selector)) {
+                  node.addEventListener(eventName, callback);
+                } else if (node.querySelectorAll) {
+                  _this.on(selector, eventName, callback, node);
+                }
+              });
+            }
+          });
+        });
+        mutationObserver.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+    }
+  }]);
+
+  return Events;
+}();
+
+exports.Events = Events;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.History = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var History =
+/*#__PURE__*/
+function () {
+  function History(cacheTimeout) {
+    _classCallCheck(this, History);
+
+    this.cacheTimeout = cacheTimeout;
+    this.pages = {};
+  }
+
+  _createClass(History, [{
+    key: "getPage",
+    value: function getPage(key) {
+      var possiblePage = this.pages[key],
+          page = null;
+
+      if (undefined !== possiblePage) {
+        if (!this.cacheTimeout || new Date().now - possiblePage.timestamp <= this.cacheTimeout) {
+          page = possiblePage;
+        }
+      }
+
+      return page;
+    }
+  }, {
+    key: "setPage",
+    value: function setPage(page) {
+      var currentPage = this.getPage(page.key);
+
+      if (currentPage) {
+        page.timestamp = new Date().now;
+      }
+
+      this.pages[page.key] = page;
+    }
+  }]);
+
+  return History;
+}();
+
+exports.History = History;
+
+},{}],4:[function(require,module,exports){
+"use strict";
+
+require("./container");
+
+require("./events");
+
+require("./history");
+
+require("./page");
+
+(function () {
+  function filterAnchor(anchor) {
+    var target = anchor.getAttribute('target') || '',
+        filter = true;
+
+    if ('_blank' !== target.toLowerCase()) {
+      filter = filterUrl(anchor);
+    }
+
+    return filter;
+  }
+
+  function filterUrl(url) {
+    var filter = true;
+
+    if (window.location.hostname === url.hostname) {
+      var pathName = url.pathname;
+
+      if (window.location.pathname !== pathName || !url.hash) {
+        var blacklist = settings.urlBlacklist;
+
+        for (var i in blacklist) {
+          var pattern = blacklist[i];
+
+          if (pattern.test(pathName)) {
+            filter = true;
+            break;
+          }
+        }
+      }
+    }
+
+    return filter;
+  }
+
+  function init() {
+    var _this = this;
+
+    var container = new Container(containerId),
+        history = new History(settings.cacheTimeout);
+    var currentPage = container.currentPage;
+    history.appendPage(currentPage);
+    window.history.replaceState({
+      key: currentPage.key
+    }, currentPage.documentTitle, document.location.href);
+    Events.live('a', 'click', function (e) {
+      var anchor = _this;
+
+      if (!filterAnchor(anchor)) {
+        e.preventDefault();
+        var bodyClassList = document.body.classList; // Avoid double fetching by checking this body class.
+
+        if (!bodyClassList.contains('ajax-navigation-fetching')) {
+          bodyClassList.add('ajax-navigation-fetching');
+          var href = anchor.href;
+          var key = Page.generateKey(href),
+              page = history.getPage(key);
+
+          if (page) {
+            container.render(page);
+          } else {
+            fetch(href).then(function (html) {
+              var page = Container.parsePage(href, html);
+              bodyClassList.remove('ajax-navigation-fetching');
+              history.setPage(page);
+              container.render(page);
+              window.history.pushState({
+                key: page.key
+              }, page.documentTitle, href);
+            }).catch(function () {
+              // In case of an error, it fallbacks in regular navigation.
+              window.location.href = href;
+            });
+          }
+        }
+      }
+    }); // When the user goes back or forward, we retrieve the content from the queue
+
+    window.addEventListener('popstate', function (e) {
+      var key = e.state ? e.state.key : null;
+
+      if (key) {
+        container.render(history.getPage(key));
+      }
+    });
+  }
+
+  if (undefined !== window.ajaxNavigation) {
+    var settings = window.ajaxNavigation;
+    var readyState = document.readyState;
+
+    if ('complete' === readyState || 'interactive' === readyState) {
+      init();
+    } else {
+      document.addEventListener('DOMContentLoaded', init);
+    }
+  }
+})();
+
+},{"./container":1,"./events":2,"./history":3,"./page":5}],5:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Page = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Page =
+/*#__PURE__*/
+function () {
+  function Page(href, documentTitle, bodyClass, rootElement) {
+    _classCallCheck(this, Page);
+
+    this.key = this.generateKey(href);
+    this.documentTitle = documentTitle;
+    this.bodyClass = bodyClass;
+    this.rootElement = rootElement;
+    this.timestamp = new Date().now;
+    this.updateScroll();
+  }
+
+  _createClass(Page, [{
+    key: "update",
+    value: function update() {
+      this.documentTitle = document.title;
+      this.updateScroll();
+    }
+  }, {
+    key: "updateScroll",
+    value: function updateScroll() {
+      this.scrollX = window.scrollX;
+      this.scrollY = window.scrollY;
+    }
+  }], [{
+    key: "generateKey",
+    value: function generateKey(href) {
+      var key = href.replace(document.location.origin, ''),
+          appendSlash = false;
+
+      if (key.length) {
+        if ('/' !== key.charAt(key.length - 1)) {
+          appendSlash = true;
+        }
+      } else {
+        appendSlash = true;
+      }
+
+      if (appendSlash) {
+        key += '/';
+      }
+
+      return key;
+    }
+  }, {
+    key: "parseHTML",
+    value: function parseHTML(href, html) {
+      var id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+      var parser = new DOMParser(),
+          document = parser.parseFromString(html, 'text/html'),
+          documentTitle = document.title,
+          bodyClass = document.body.className,
+          rootElement = null,
+          page = null;
+
+      if (id) {
+        rootElement = document.getElementByID(id);
+      } else {
+        rootElement = document.body;
+      }
+
+      return new Page(href, documentTitle, bodyClass, rootElement);
+    }
+  }]);
+
+  return Page;
+}();
+
+exports.Page = Page;
+
+},{}]},{},[4]);
