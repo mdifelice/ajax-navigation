@@ -1,6 +1,6 @@
-export class Page {
+export default class Page {
 	constructor( href, documentTitle, bodyClass, rootElement ) {
-		this.key           = this.generateKey( href );
+		this.key           = Page.generateKey( href );
 		this.documentTitle = documentTitle;
 		this.bodyClass     = bodyClass;
 		this.rootElement   = rootElement;
@@ -37,22 +37,5 @@ export class Page {
 		}
 
 		return key;
-	}
-
-	static parseHTML( href, html, id = null ) {
-		let parser        = new DOMParser(),
-			document      = parser.parseFromString( html, 'text/html' ),
-			documentTitle = document.title,
-			bodyClass     = document.body.className,
-			rootElement   = null,
-			page          = null;
-
-		if ( id ) {
-			rootElement = document.getElementByID( id );
-		} else {
-			rootElement = document.body;
-		}
-
-		return new Page( href, documentTitle, bodyClass, rootElement );
 	}
 }

@@ -4,7 +4,7 @@
  * Description: @todo
  * Author: Martín Di Felice
  * Text Domain: ajax-navigation
- * Doman Path: /languages
+ * Domain Path: /languages
  * Version: 1.0
  */
 
@@ -135,6 +135,13 @@ add_action( 'wp_enqueue_scripts', function() {
 					'/^\/feed\/?$/',
 				),
 			)
+		);
+
+		wp_enqueue_style(
+			'ajax-navigation',
+			plugins_url( 'public/css/ajax-navigation.min.css', __FILE__ ),
+			array(),
+			'1.0'
 		);
 	}
 } );

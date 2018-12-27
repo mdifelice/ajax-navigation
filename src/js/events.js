@@ -1,8 +1,8 @@
-export class Events {
+export default class Events {
 	static on( selector, eventName, callback, container ) {
-		let elements = container.querySelectorAll( selector );
-
 		container = container || document;
+
+		let elements = container.querySelectorAll( selector );
 
 		elements.forEach( ( element ) => {
 			element.addEventListener( eventName, callback );

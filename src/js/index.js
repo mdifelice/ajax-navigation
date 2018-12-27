@@ -1,7 +1,7 @@
-import './container';
-import './events';
-import './history';
-import './page';
+import Container from './container';
+import Events from './events';
+import History from './history';
+import Page from './page';
 
 ( function() {
 	function filterAnchor( anchor ) {
@@ -24,8 +24,10 @@ import './page';
 			if ( window.location.pathname !== pathName || ! url.hash ) {
 				let blacklist = settings.urlBlacklist;
 
+				filter = false;
+
 				for ( let i in blacklist ) {
-					let pattern = blacklist[ i ];
+					let pattern = new RegExp( blacklist[ i ] );
 
 					if ( pattern.test( pathName ) ) {
 						filter = true;
@@ -40,12 +42,12 @@ import './page';
 	}
 
 	function init() {
-		var container   = new Container( containerId ),
-			history     = new History( settings.cacheTimeout );
+		var container = new Container( settings.containerId ),
+			history   = new History( settings.cacheTimeout );
 
 		let currentPage = container.currentPage;
 
-		history.appendPage( currentPage );
+		history.setPage( currentPage );
 
 		window.history.replaceState(
 			{
@@ -55,7 +57,7 @@ import './page';
 			document.location.href
 		);
 
-		Events.live( 'a', 'click', ( e ) => {
+		Events.live( 'a', 'click', function( e ) {
 			let anchor = this;
 
 			if ( ! filterAnchor( anchor ) ) {
@@ -76,7 +78,7 @@ import './page';
 						container.render( page );
 					} else {
 						fetch( href ).then( ( html ) => {
-							let page = Container.parsePage( href, html );
+							let page = container.parsePage( href, html );
 
 							bodyClassList.remove( 'ajax-navigation-fetching' );
 

@@ -4,7 +4,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Container = void 0;
+exports.default = void 0;
+
+var _page = _interopRequireDefault(require("./page"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -20,13 +24,13 @@ function () {
 
     this.id = id;
     this.rootElement = document.getElementById(id) || document.body;
-    this.currentPage = this.parsePage(href, document.title, document.body.className);
+    this.currentPage = this.parsePage(document.location.href, document.title, document.body.className);
   }
 
   _createClass(Container, [{
     key: "render",
     value: function render(page) {
-      currentPage.update();
+      this.currentPage.update();
       document.title = page.documentTitle;
       document.body.className = page.bodyClass;
 
@@ -47,28 +51,28 @@ function () {
           rootElement = null,
           page = null;
 
-      if (id) {
-        rootElement = document.getElementByID(container.id);
+      if (this.id) {
+        rootElement = document.getElementByID(this.id);
       } else {
         rootElement = document.body;
       }
 
-      return new Page(href, documentTitle, bodyClass, rootElement);
+      return new _page.default(href, documentTitle, bodyClass, rootElement);
     }
   }]);
 
   return Container;
 }();
 
-exports.Container = Container;
+exports.default = Container;
 
-},{}],2:[function(require,module,exports){
+},{"./page":5}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Events = void 0;
+exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -86,8 +90,8 @@ function () {
   _createClass(Events, null, [{
     key: "on",
     value: function on(selector, eventName, callback, container) {
-      var elements = container.querySelectorAll(selector);
       container = container || document;
+      var elements = container.querySelectorAll(selector);
       elements.forEach(function (element) {
         element.addEventListener(eventName, callback);
       });
@@ -124,7 +128,7 @@ function () {
   return Events;
 }();
 
-exports.Events = Events;
+exports.default = Events;
 
 },{}],3:[function(require,module,exports){
 "use strict";
@@ -132,7 +136,7 @@ exports.Events = Events;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.History = void 0;
+exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -180,18 +184,20 @@ function () {
   return History;
 }();
 
-exports.History = History;
+exports.default = History;
 
 },{}],4:[function(require,module,exports){
 "use strict";
 
-require("./container");
+var _container = _interopRequireDefault(require("./container"));
 
-require("./events");
+var _events = _interopRequireDefault(require("./events"));
 
-require("./history");
+var _history = _interopRequireDefault(require("./history"));
 
-require("./page");
+var _page = _interopRequireDefault(require("./page"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (function () {
   function filterAnchor(anchor) {
@@ -213,9 +219,10 @@ require("./page");
 
       if (window.location.pathname !== pathName || !url.hash) {
         var blacklist = settings.urlBlacklist;
+        filter = false;
 
         for (var i in blacklist) {
-          var pattern = blacklist[i];
+          var pattern = new RegExp(blacklist[i]);
 
           if (pattern.test(pathName)) {
             filter = true;
@@ -229,17 +236,16 @@ require("./page");
   }
 
   function init() {
-    var _this = this;
-
-    var container = new Container(containerId),
-        history = new History(settings.cacheTimeout);
+    var container = new _container.default(settings.containerId),
+        history = new _history.default(settings.cacheTimeout);
     var currentPage = container.currentPage;
-    history.appendPage(currentPage);
+    history.setPage(currentPage);
     window.history.replaceState({
       key: currentPage.key
     }, currentPage.documentTitle, document.location.href);
-    Events.live('a', 'click', function (e) {
-      var anchor = _this;
+
+    _events.default.live('a', 'click', function (e) {
+      var anchor = this;
 
       if (!filterAnchor(anchor)) {
         e.preventDefault();
@@ -248,14 +254,15 @@ require("./page");
         if (!bodyClassList.contains('ajax-navigation-fetching')) {
           bodyClassList.add('ajax-navigation-fetching');
           var href = anchor.href;
-          var key = Page.generateKey(href),
+
+          var key = _page.default.generateKey(href),
               page = history.getPage(key);
 
           if (page) {
             container.render(page);
           } else {
             fetch(href).then(function (html) {
-              var page = Container.parsePage(href, html);
+              var page = container.parsePage(href, html);
               bodyClassList.remove('ajax-navigation-fetching');
               history.setPage(page);
               container.render(page);
@@ -270,6 +277,7 @@ require("./page");
         }
       }
     }); // When the user goes back or forward, we retrieve the content from the queue
+
 
     window.addEventListener('popstate', function (e) {
       var key = e.state ? e.state.key : null;
@@ -298,7 +306,7 @@ require("./page");
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Page = void 0;
+exports.default = void 0;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -312,7 +320,7 @@ function () {
   function Page(href, documentTitle, bodyClass, rootElement) {
     _classCallCheck(this, Page);
 
-    this.key = this.generateKey(href);
+    this.key = Page.generateKey(href);
     this.documentTitle = documentTitle;
     this.bodyClass = bodyClass;
     this.rootElement = rootElement;
@@ -352,30 +360,11 @@ function () {
 
       return key;
     }
-  }, {
-    key: "parseHTML",
-    value: function parseHTML(href, html) {
-      var id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-      var parser = new DOMParser(),
-          document = parser.parseFromString(html, 'text/html'),
-          documentTitle = document.title,
-          bodyClass = document.body.className,
-          rootElement = null,
-          page = null;
-
-      if (id) {
-        rootElement = document.getElementByID(id);
-      } else {
-        rootElement = document.body;
-      }
-
-      return new Page(href, documentTitle, bodyClass, rootElement);
-    }
   }]);
 
   return Page;
 }();
 
-exports.Page = Page;
+exports.default = Page;
 
 },{}]},{},[4]);

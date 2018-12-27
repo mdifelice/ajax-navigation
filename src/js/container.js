@@ -1,12 +1,14 @@
-export class Container {
+import Page from './page';
+
+export default class Container {
 	constructor( id ) {
 		this.id          = id;
 		this.rootElement = document.getElementById( id ) || document.body;
-		this.currentPage = this.parsePage( href, document.title, document.body.className );
+		this.currentPage = this.parsePage( document.location.href, document.title, document.body.className );
 	}
 
 	render( page ) {
-		currentPage.update();
+		this.currentPage.update();
 
 		document.title          = page.documentTitle;
 		document.body.className = page.bodyClass;
@@ -28,8 +30,8 @@ export class Container {
 			rootElement   = null,
 			page          = null;
 
-		if ( id ) {
-			rootElement = document.getElementByID( container.id );
+		if ( this.id ) {
+			rootElement = document.getElementByID( this.id );
 		} else {
 			rootElement = document.body;
 		}

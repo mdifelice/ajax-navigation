@@ -30,6 +30,15 @@ module.exports = function( grunt ) {
 				}
 			}
 		},
+		sass: {
+			dist: {
+				options: {
+					style: 'compressed',
+				},
+				src: 'src/sass/index.scss',
+				dest: 'public/css/<%= pkg.name %>.min.css'
+			}
+		},
 		clean: [ 'tmp' ]
 	} );
 
@@ -37,7 +46,8 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( 'grunt-browserify' );
 	grunt.loadNpmTasks( 'grunt-contrib-clean' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+	grunt.loadNpmTasks( 'grunt-contrib-sass' );
 	grunt.loadNpmTasks( 'grunt-wp-i18n' );
 
-	grunt.registerTask( 'default', [ 'babel', 'browserify', 'uglify', 'makepot', 'clean' ] );
+	grunt.registerTask( 'default', [ 'babel', 'browserify', 'uglify', 'makepot', 'sass', 'clean' ] );
 };

@@ -1,4 +1,4 @@
-export class History {
+export default class History {
 	constructor( cacheTimeout ) {
 		this.cacheTimeout = cacheTimeout;
 		this.pages        = {};
