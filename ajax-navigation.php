@@ -117,7 +117,7 @@ add_action( 'wp_enqueue_scripts', function() {
 
 		wp_enqueue_script(
 			'ajax-navigation',
-			plugins_url( 'public/js/ajax-navigation.js', __FILE__ ),
+			plugins_url( 'public/js/ajax-navigation.min.js', __FILE__ ),
 			array(),
 			'1.0',
 			true

@@ -4,20 +4,18 @@ export default class Page {
 		this.documentTitle = documentTitle;
 		this.bodyClass     = bodyClass;
 		this.rootElement   = rootElement;
-		this.timestamp     = new Date().now;
-
-		this.updateScroll();
+		this.timestamp     = Date.now();
 	}
 
-	update() {
+	update( containerRootElement ) {
 		this.documentTitle = document.title;
+		this.bodyClass     = document.body.className;
+		this.scrollX       = window.scrollX;
+		this.scrollY       = window.scrollY;
 
-		this.updateScroll();
-	}
-
-	updateScroll() {
-		this.scrollX = window.scrollX;
-		this.scrollY = window.scrollY;
+		while ( containerRootElement.firstChild ) {
+			this.rootElement.appendChild( containerRootElement.firstChild );
+		}
 	}
 
 	static generateKey( href ) {

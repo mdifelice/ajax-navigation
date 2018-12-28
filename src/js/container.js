@@ -4,11 +4,11 @@ export default class Container {
 	constructor( id ) {
 		this.id          = id;
 		this.rootElement = document.getElementById( id ) || document.body;
-		this.currentPage = this.parsePage( document.location.href, document.title, document.body.className );
+		this.currentPage = this.parsePage( document.location.href, '' );
 	}
 
 	render( page ) {
-		this.currentPage.update();
+		this.currentPage.update( this.rootElement );
 
 		document.title          = page.documentTitle;
 		document.body.className = page.bodyClass;
@@ -17,7 +17,17 @@ export default class Container {
 			this.rootElement.appendChild( page.rootElement.firstChild );
 		}
 
-		window.scrollTo( page.scrollX, page.scrollY );
+		/**
+		 * @todo
+		 *
+		 * Given there is some asynchronous processing when appending elements
+		 * the scrolling functionality will not work if executed just after
+		 * adding them. It is setup a timeout of 10 milliseconds (enough for
+		 * completing that processing) while does not appear a better solution.
+		 */
+		setTimeout( () => {
+			window.scrollTo( page.scrollX, page.scrollY );
+		}, 10 );
 
 		this.currentPage = page;
 	}
