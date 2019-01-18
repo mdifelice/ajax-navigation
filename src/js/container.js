@@ -18,16 +18,19 @@ export default class Container {
 		}
 
 		/**
-		 * @todo
-		 *
 		 * Given there is some asynchronous processing when appending elements
 		 * the scrolling functionality will not work if executed just after
 		 * adding them. It is setup a timeout of 10 milliseconds (enough for
 		 * completing that processing) while does not appear a better solution.
+		 *
+		 * @todo
 		 */
-		setTimeout( () => {
-			window.scrollTo( page.scrollX, page.scrollY );
-		}, 10 );
+		setTimeout(
+			() => {
+				window.scrollTo( page.scrollX, page.scrollY );
+			},
+			10
+		);
 
 		this.currentPage = page;
 	}

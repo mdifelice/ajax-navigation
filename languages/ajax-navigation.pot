@@ -1,14 +1,14 @@
-# Copyright (C) 2018 Martín Di Felice
+# Copyright (C) 2019 Martín Di Felice
 # This file is distributed under the same license as the AJAX Navigation package.
 msgid ""
 msgstr ""
 "Project-Id-Version: AJAX Navigation 1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/ajax-navigation\n"
-"POT-Creation-Date: 2018-12-27 18:53:12+00:00\n"
+"POT-Creation-Date: 2019-01-18 19:59:33+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2018-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n 1.0.3\n"
@@ -17,32 +17,32 @@ msgstr ""
 msgid "AJAX Navigation"
 msgstr ""
 
-#: ajax-navigation.php:41
+#: ajax-navigation.php:51
 msgid "Default Settings"
 msgstr ""
 
-#: ajax-navigation.php:48
+#: ajax-navigation.php:58
 msgid "Advanced Settings"
 msgstr ""
 
-#: ajax-navigation.php:55
+#: ajax-navigation.php:65
 msgid "Enabled?"
 msgstr ""
 
-#: ajax-navigation.php:68
+#: ajax-navigation.php:78
 msgid "Cache timeout"
 msgstr ""
 
-#: ajax-navigation.php:81
+#: ajax-navigation.php:91
 msgid "Container ID"
 msgstr ""
 
-#: ajax-navigation.php:146
+#: ajax-navigation.php:169
 msgid "Settings"
 msgstr ""
 
 #. Description of the plugin/theme
-msgid "@todo"
+msgid "Transforms a regular site into an AJAX-navigable one."
 msgstr ""
 
 #. Author of the plugin/theme
